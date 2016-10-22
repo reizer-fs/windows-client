@@ -1,0 +1,420 @@
+;; WNA1000M.inf 
+;;
+;; Netgear RTL8192C Wireless 802.11b/g/n USB 2.0 Network Adapter
+
+[Version]
+Signature		= "$Windows NT$"
+Class		= Net
+ClassGUID	= {4d36e972-e325-11ce-bfc1-08002be10318}
+Provider		= %Netgear%
+CatalogFile.NT	= WNA1000M.cat		;; for WHQL certified
+DriverVer = 01/31/2011,1012.1.0131.2011
+
+[Manufacturer]
+%Netgear% = Netgear,NTamd64.6.1
+
+[ControlFlags]
+ExcludeFromSelect = *
+
+;;****************************************************************************
+;; IDs for X86
+;;****************************************************************************
+[Netgear.NTx86.6.1]
+%WNA1000M.DeviceDesc% = WNA1000M.ndi, USB\VID_0846&PID_9041
+
+;;****************************************************************************
+;; IDs for X64
+;;****************************************************************************
+[Netgear.NTamd64.6.1]
+%WNA1000M.DeviceDesc% = WNA1000M.ndi, USB\VID_0846&PID_9041
+
+;;****************************************************************************
+;; Windows 2000/XP
+;;****************************************************************************
+;;----------------------------------------------------------------------------
+;; Netgear default installation
+;;----------------------------------------------------------------------------
+[WNA1000M.ndi.NT]
+AddReg			= RTL8192cu.os61.reg, RTL8192cu.common.reg, RTLWLAN.reg, 11nWirelessMode.reg, CIHVS.reg
+Include         		= netvwifibus.inf
+Needs			= VWiFiBus.CopyFiles
+Characteristics		= 0x84
+BusType			= 15 
+CopyFiles			= WNA1000M.CopyFiles
+*IfType			= 71            ; IF_TYPE_IEEE80211
+*MediaType		= 16            ; NdisMediumNative802_11
+*PhysicalMediaType		= 9          ; NdisPhysicalMediumNative802_11
+
+[WNA1000M.ndi.NT.Services]
+AddService		= RTL8192cu, 2, RTL8192cu.nt61.Service, RTL8192cu.nt61.EventLog
+Include = netvwifibus.inf
+Needs = VWiFiBus.Services
+
+[RTL8192cu.ndi.NT.HW]
+Include = netvwifibus.inf
+Needs 	= VWiFiBus.PnPFilterRegistration
+
+;;----------------------------------------------------------------------------
+;; Realtek G mode sku installation
+;;----------------------------------------------------------------------------
+[RTL8192cu_G.ndi.NT]
+AddReg			= RTL8192cu.os61.reg, RTL8192cu.common.reg, RTLWLAN.reg, 11gWirelessMode.reg, CIHVS.reg
+Include         = netvwifibus.inf
+Needs			= VWiFiBus.CopyFiles
+Characteristics	= 0x84
+BusType			= 15 
+CopyFiles		= RTL8192cu.CopyFiles
+*IfType			= 71            ; IF_TYPE_IEEE80211
+*MediaType		= 16            ; NdisMediumNative802_11
+*PhysicalMediaType		= 9          ; NdisPhysicalMediumNative802_11
+
+[RTL8192cu_G.ndi.NT.Services]
+AddService		= RTL8192cu, 2, RTL8192cu.nt61.Service, RTL8192cu.nt61.EventLog
+Include = netvwifibus.inf
+Needs = VWiFiBus.Services
+
+[RTL8192cu_G.ndi.NT.HW]
+Include = netvwifibus.inf
+Needs 	= VWiFiBus.PnPFilterRegistration
+
+;;----------------------------------------------------------------------------
+;; Realtek 8723u default installation
+;;----------------------------------------------------------------------------
+[RTL8723u.ndi.NT]
+AddReg			= RTL8192cu.os61.reg, RTL8723u.common.reg, RTLWLAN.reg
+Include         	= netvwifibus.inf
+Needs			= VWiFiBus.CopyFiles
+Characteristics		= 0x84
+BusType			= 15 
+CopyFiles		= RTL8192cu.CopyFiles
+*IfType			= 71            ; IF_TYPE_IEEE80211
+*MediaType		= 16            ; NdisMediumNative802_11
+*PhysicalMediaType	= 9          ; NdisPhysicalMediumNative802_11
+
+[RTL8723u.ndi.NT.Services]
+AddService		= RTL8192cu, 2, RTL8192cu.nt61.Service, RTL8192cu.nt61.EventLog
+Include = netvwifibus.inf
+Needs 	= VWiFiBus.Services
+
+[RTL8723u.ndi.NT.HW]
+Include = netvwifibus.inf
+Needs 	= VWiFiBus.PnPFilterRegistration
+
+;;****************************************************************************
+;; Windows 2000/XP parameters
+;;****************************************************************************
+[RTL8192cu.os61.reg]
+HKR, Ndi\Interfaces,	UpperRange, 0, "ndis5,mdcwifi"
+HKR, Ndi\Interfaces,	LowerRange, 0, "wlan, ethernet, vwifi"
+HKR, Ndi,				Service,    0, "RTL8192cu"
+
+[RTL8192cu.nt61.Service]
+DisplayName    = %WNA1000M.DeviceDesc.DispName%
+ServiceType    = 1		; %SERVICE_KERNEL_DRIVER%
+StartType      = 3		; %SERRVICE_DEMAND_START%
+ErrorControl   = 1		; %SERRVICE_ERROR_NORMAL%
+ServiceBinary  = %12%\WNA1000M.sys
+LoadOrderGroup = NDIS
+
+[RTL8192cu.nt61.EventLog]
+AddReg = RTL8192cu.nt61.AddEventLog.reg
+
+[RTL8192cu.nt61.AddEventLog.reg]
+HKR, , EventMessageFile, 0x00020000, "%%SystemRoot%%\System32\netevent.dll"
+HKR, , TypesSupported  , 0x00010001, 7
+
+;*******************************************************************************
+; Netgear common paramters
+;*******************************************************************************
+[RTL8192cu.common.reg]
+HKR,defaults,LedCtrl,0,"1"
+HKR,,LedCtrl,0,"1"
+
+HKR,defaults,WiFi11bIbss,0,"0"
+HKR,,WiFi11bIbss,0,"0"
+
+HKR,defaults,bRateAdaptive,0,"1"
+HKR,,bRateAdaptive,0,"1"
+
+HKR,defaults,QoS,0,"1"
+HKR,,QoS,0,"1"
+
+HKR,defaults,WiFiConfg,0,"0"
+HKR,,WiFiConfg,0,"0"
+
+HKR,defaults,CcxRm,0,"1"
+HKR,,CcxRm,0,"1"
+
+HKR,defaults,CcxOffLineDurUpLimit,0,"0"
+HKR,,CcxOffLineDurUpLimit,0,"0"
+
+;; For USB selective suspend.
+HKR,,EnableUsbSS,0,"1"
+
+;; For GPIO detect setting.
+HKR,,TimerGPIO,0,"0"
+HKR,,GPIODelay,0,"1000"
+HKR,,GPIOBack,0,"1000"
+
+;; For PDN mode switch.
+HKR,,PDNMode,0,"0"
+
+;; For PDN mode switch.
+HKR,,DongleSS,0,"1"
+
+;; For Different selective suspend power save level. Now support 1 and 2. 2 is better.
+HKR,,SSPwrLvl,0,"2"
+
+;*******************************************************************************
+; RTL8723u common paramters
+;*******************************************************************************
+[RTL8723u.common.reg]
+HKR,defaults,LedCtrl,0,"1"
+HKR,,LedCtrl,0,"1"
+
+HKR,defaults,WiFi11bIbss,0,"0"
+HKR,,WiFi11bIbss,0,"0"
+
+HKR,defaults,bRateAdaptive,0,"1"
+HKR,,bRateAdaptive,0,"1"
+
+HKR,defaults,QoS,0,"1"
+HKR,,QoS,0,"1"
+
+HKR,defaults,WiFiConfg,0,"0"
+HKR,,WiFiConfg,0,"0"
+
+HKR,defaults,CcxRm,0,"1"
+HKR,,CcxRm,0,"1"
+
+HKR,defaults,CcxOffLineDurUpLimit,0,"0"
+HKR,,CcxOffLineDurUpLimit,0,"0"
+
+;; For USB selective suspend.
+HKR,,EnableUsbSS,0,"1"
+
+;; For GPIO detect setting.
+HKR,,TimerGPIO,0,"0"
+HKR,,GPIODelay,0,"1000"
+HKR,,GPIOBack,0,"1000"
+
+;; For PDN mode switch.
+HKR,,PDNMode,0,"1"
+
+;; For PDN mode switch.
+HKR,,DongleSS,0,"1"
+
+;;----------------------------------------------------------------------------
+;; Netgear WLAN NIC parameters
+;;----------------------------------------------------------------------------
+[RTLWLAN.reg]
+HKR,defaults,SSID,0,"ANY"
+HKR,,SSID,0,"ANY"
+
+HKR,defaults,Channel,0,"1"
+HKR,,Channel,0,"1"
+
+HKR,Ndi\params\NetworkType,			ParamDesc,  0, %NETWORK_TYPE_STR%
+HKR,Ndi\params\NetworkType,			type,       0, "enum"
+HKR,Ndi\params\NetworkType,			default,    0, "1"
+HKR,Ndi\params\NetworkType\enum,		"0",        0, %AD_HOC_STR%
+HKR,Ndi\params\NetworkType\enum,		"1",        0, %INFRASTRUCTURE_STR%
+HKR,Ndi\params\NetworkType\enum,		"2",        0, %AUTO_SELECT%
+HKR,defaults,NetworkType,0,"1"
+HKR,,NetworkType,0,"1"
+
+HKR,defaults,StaUapsd,0,"0"
+HKR,,StaUapsd,0,"0"
+
+; For B/G mode and B/G/N mode switch, we will use different wireless mode registry in later section
+;HKR,Ndi\params\WirelessMode, 			ParamDesc, 	0, %WL_MODE_STR%
+;HKR,Ndi\params\WirelessMode, 			type, 		0, "enum"
+;HKR,Ndi\params\WirelessMode, 			default, 	0, "8"
+;HKR,Ndi\params\WirelessMode\enum, 		"2", 		0, %IEEE_802_11B_STR%
+;HKR,Ndi\params\WirelessMode\enum, 		"4", 		0, %IEEE_802_11BG_STR%
+;HKR,Ndi\params\WirelessMode\enum, 		"8", 		0, %IEEE_802_11BGN_STR%
+;HKR,defaults,WirelessMode, 0, "8"
+;HKR,,WirelessMode, 0, "8"
+
+HKR,defaults,RxReorder,0,"1"
+HKR,,RxReorder,0,"1"
+
+HKR,,DefaultKeyID,,"0"
+HKR,,DefaultKey0,,""
+HKR,,DefaultKey1,,""
+HKR,,DefaultKey2,,""
+HKR,,DefaultKey3,,""
+
+;Inactive Power Save
+HKR,defaults,InactivePs,0,"2"
+HKR,,InactivePs,0,"2"
+
+;Leisure Power Save
+HKR,defaults,bLeisurePs,0,"2"
+HKR,,bLeisurePs,0,"2"
+
+;Fw Control LPS
+HKR,defaults,bFwCtrlLPS,0,"3"
+HKR,,bFwCtrlLPS,0,"3"
+
+;; LPS Interval
+;HKR,defaults,LPSIntvl,0,"5"
+HKR,,LPSIntvl,0,"5"
+
+; Reset Tx Hang
+HKR,defaults,USBResetTxHang,0,"1"
+HKR,,USBResetTxHang,0,"1"
+
+HKR,,WEPinNmode,0,"0"
+
+;-------------------------------------------------------------------------------
+;	USB Tx/Rx aggregation
+;-------------------------------------------------------------------------------
+
+HKR,defaults,UsbRxAggMode,0,"2"
+HKR,,UsbRxAggMode,0,"2"
+
+HKR,defaults,UsbRxAggBlockCount,0,"8"
+HKR,,UsbRxAggBlockCount,0,"8"
+
+HKR,defaults,UsbRxAggBlockTimeout,0,"6"
+HKR,,UsbRxAggBlockTimeout,0,"6"
+
+HKR,defaults,UsbRxAggPageCount,0,"16"
+HKR,,UsbRxAggPageCount,0,"16"
+
+HKR,defaults,UsbRxAggPageTimeout,0,"6"
+HKR,,UsbRxAggPageTimeout,0,"6"
+
+HKR,defaults,UsbTxAggMode,0,"1"
+HKR,,UsbTxAggMode,0,"1"
+
+HKR,defaults,UsbTxAggDescNum,0,"6"
+HKR,,UsbTxAggDescNum,0,"6"
+
+HKR,defaults,AggDMEnable,0,"1"
+HKR,,AggDMEnable,0,"1"
+
+HKR,defaults,UPDMEnable,0,"1"
+HKR,,UPDMEnable,0,"1"
+
+; /****************************************************************************
+; ** IHV Service Reg for CCX
+; ****************************************************************************/
+
+[CIHVS.reg]
+HKR, Ndi\IHVExtensions, ExtensibilityDLL,       0,  "%SystemRoot%\system32\Rtlihvs.dll"
+HKR, Ndi\IHVExtensions, UIExtensibilityCLSID,   0,  "{6C2A8CCA-B2A2-4d81-A3B2-4E15F445C312}"
+HKR, Ndi\IHVExtensions, GroupName,              0,  "Realtek CCX SDK IHV Service"
+HKR, Ndi\IHVExtensions, AdapterOUI,             0x00010001, 0x00e04c
+
+;;----------------------------------------------------------------------------
+;; Wireless mode option parameters
+;;----------------------------------------------------------------------------
+[11gWirelessMode.reg]
+HKR,Ndi\params\WirelessMode, 		ParamDesc, 	0, %WL_MODE_STR%
+HKR,Ndi\params\WirelessMode, 		type, 		0, "enum"
+HKR,Ndi\params\WirelessMode, 		default, 	0, "8"
+HKR,Ndi\params\WirelessMode\enum, 	"2", 		0, %IEEE_802_11B_STR%
+HKR,Ndi\params\WirelessMode\enum, 	"4", 		0, %IEEE_802_11BG_STR%
+HKR,defaults,WirelessMode, 0, "4"
+HKR,,WirelessMode, 0, "4"
+
+[11nWirelessMode.reg]
+HKR,Ndi\params\WirelessMode, 		ParamDesc, 	0, %WL_MODE_STR%
+HKR,Ndi\params\WirelessMode, 		type, 		0, "enum"
+HKR,Ndi\params\WirelessMode, 		default, 	0, "8"
+HKR,Ndi\params\WirelessMode\enum, 	"2", 		0, %IEEE_802_11B_STR%
+HKR,Ndi\params\WirelessMode\enum, 	"4", 		0, %IEEE_802_11BG_STR%
+HKR,Ndi\params\WirelessMode\enum, 	"8", 		0, %IEEE_802_11BGN_STR%
+HKR,defaults,WirelessMode, 0, "8"
+HKR,,WirelessMode, 0, "8"
+
+
+;*******************************************************************************
+; Destination Directory
+;*******************************************************************************
+[WNA1000M.CopyFiles]
+WNA1000M.sys,,,2
+
+[DestinationDirs]
+DefaultDestDir     = 11
+WNA1000M.CopyFiles		= 12
+
+;;****************************************************************************
+;; Source Files
+;;****************************************************************************
+[SourceDisksFiles]
+WNA1000M.sys = 1
+
+[SourceDisksNames]
+1=%DISKNAME%,,,
+
+;*******************************************************************************
+; Strings
+;*******************************************************************************
+[Strings]
+SSID_STR					= "SSID"
+CHANNEL_STR				= "Channel"
+NETWORK_TYPE_STR			= "Network Type"
+LED_CONTROL_STR				= "LED Control" 
+POWER_SAVE_STR				= "Power Save Mode"
+WIFI_IBSS_STR				= "IBSS Default 11b Mode"
+RATE_ADAPTIVE_STR			= "Rate Adaptive"
+QOS_STR					= "QoS"
+WiFiConfg_STR	  			= "WiFiConfg"
+WMM_APSD				= "WMM APSD"
+CCX_RM_STR				= "CCX Radio Measurement"
+CCX_OFF_LINE_DUR_UP_LIMIT_STR		= "CCX Max Off-Line Measurement (0: unlimited)"
+FORCE_PRIORITY_STR			= "Forced Priority"
+HW_PARA_STR				= "Init from HwParaFile"
+THREE_WIRE_MODE_STR			= "Three Wire Programming Mode"
+BOARD_TYPE_STR				= "Board Type"
+PROTECTION_MODE_STR			= "Protection Mode"
+TPC_STR					= "Transmit Power Control"
+TPC_POLARITY_STR				= "TPC Polarity Select"
+HIGH_POWER_STR				= "High Power Mechanism"
+INIT_GAIN_STR				= "Initial Gain State"
+CW_MAX_MIN_STR				= "Contention Window"
+PSP_XLINK_STR				= "PSP XLink Mode"
+DISABLE_STR				= "Disable"
+ENABLE_STR				= "Enable"
+AD_HOC_STR				= "Ad Hoc"
+INFRASTRUCTURE_STR			= "Infrastructure"
+AUTO_SELECT				= "Auto select"
+WL_MODE_STR				= "Wireless Mode"
+RX_REORDER_STR				= "Rx Reorder"
+CAM_STR					= "CAM"
+MAX_PSP_STR				= "MAX_PSP"
+Fast_PSP_STR				= "Fast_PSP"
+NO_AC_STR				= "No AC (Disable)"
+ALL_AC_STR				= "ALL AC"
+IEEE_802_11B_STR 				= "IEEE 802.11b"
+IEEE_802_11BG_STR 				= "IEEE 802.11b/g"
+IEEE_802_11BGN_STR 			= "IEEE 802.11b/g/n"
+
+;-------------------------------------------------------------------------------
+;	USB Tx/Rx aggregation strings
+;-------------------------------------------------------------------------------
+RX_AGG_MODE_STR				= "Rx Aggregation Mode"
+RX_AGG_MODE_BLOCK_STR			= "Rx Agg USB Block Mode"
+RX_AGG_MODE_PAGE_STR			= "Rx Agg DMA Page Mode"
+RX_AGG_MODE_MIXED_STR			= "Rx Agg USB and Page Mixed Mode"
+RX_AGG_USB_BLOCK_STR			= "Rx Agg USB Block Threshold"
+RX_AGG_USB_TIMEOUT_STR			= "Rx Agg USB Timeout"
+RX_AGG_DMA_PAGE_STR			= "Rx Agg DMA Page Threshold"
+RX_AGG_DMA_TIMEOUT_STR			= "Rx Agg DMA Timeout"
+TX_AGG_MODE_STR				= "Tx Aggregation Mode"
+TX_AGG_DESC_PER_OUT_STR			= "Tx Agg Number of descriptor per bulk out"
+
+;*******************************************************************************
+; manufacture description
+;*******************************************************************************
+Netgear					= "NETGEAR Inc."
+
+;*******************************************************************************
+;	Source disk name
+;*******************************************************************************
+DISKNAME				= "NETGEAR WNA1000M N150 Wireless USB Micro Adapter"
+WNA1000M.DeviceDesc 			= "NETGEAR WNA1000M N150 Wireless USB Micro Adapter"
+WNA1000M.DeviceDesc.DispName		= "NETGEAR WNA1000M N150 Wireless USB Micro Adapter"
