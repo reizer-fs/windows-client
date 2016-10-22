@@ -1,0 +1,37 @@
+GPU Caps Viewer
+Swiss Made Graphics Card Information Utility
+GPU Capabilities Viewer + OpenGL, OpenCL and Vulkan API Support
+Copyright © 2007-2016 Geeks3D, All rights reserved.
+http://www.Geeks3D.com
+http://www.oZone3D.Net/gpu_caps_viewer/
+
+THIS SOFTWARE IS PROVIDED 'AS-IS', WITHOUT ANY EXPRESS OR 
+IMPLIED WARRANTY. IN NO EVENT WILL THE AUTHOR BE HELD LIABLE 
+FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE.
+
+Permission is granted to anyone to use this software for 
+any purpose, excluding commercial usages, and to redistribute
+it freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must 
+   not claim that you wrote the original software.
+
+2. This software is a freeware, it cannot be sold or rented.
+   Redistributing GPU Caps Viewer as part of a 
+   commercial package is not allowed.
+
+3. - Websites: you can copy it and distribute it freely as long as
+     you put a backlink to GPU Caps Viewer homepage:
+     http://www.ozone3d.net/gpu_caps_viewer/
+   - CDROM/DVDROM or other kind of BUNDLES (graphics cards, etc.): 
+     please contact the author at jegx@ozone3d.net
+
+4. This notice may not be removed or altered from any distribution.
+
+
+----------------- Geeks3D PRO Pack ---------------------
+To use GPU Caps Viewer in a commercial context, visit this page:
+
+http://www.ozone3d.net/g3dpp/
+
+or send an email at jegx@ozone3d.net.

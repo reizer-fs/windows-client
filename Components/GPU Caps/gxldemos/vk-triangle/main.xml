@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+
+<!--
+First real Vulkan demo that draws something: a triangle.
+This demo shows how to:
+- create and use commands buffers.
+- create and use GPU buffers that provide data to shaders.
+- create and use descriptor sets.
+- create and use pipeline objects.
+- create and use SPIR-V shaders.
+-->
+
+
+<glsl_hacker>
+	
+  <window name="win3d01" title="Vulkan - Triangle of Death" 
+          width="800" height="600" resizable="1" menubar="1" 
+          separate_render_thread="1" vsync="0"
+          renderer_type="Vulkan" gpu_index="0" />
+  
+  
+  <script name="init_scene" run_mode="INIT" >
+		<raw_data><![CDATA[	
+    
+local demo_dir = gh_utils.get_demo_dir()
+local framework_dir = demo_dir .. "../framework/"
+dofile(framework_dir .. "framework_vk.lua")
+
+
+VK_Framework_Init_Begin(framework_dir)
+
+VK_Framework_Set_Main_Title("Vulkan / RGB Triangle")
+
+    
+
+
+
+camera = VK_Framework_Get_Camera()
+gh_camera.set_position(camera, 0, 0, 2)
+gh_camera.set_lookat(camera, 0, 0, 0, 1)
+
+
+
+-----------------------------------------------------------------------
+-- GPU buffer to store uniform data used by the shaders.
+--
+function UpdateCameraTransform(cam, ub)
+  -- The first 64 bytes will be used to store the camera matrix.
+  --
+  local buffer_offset_bytes = 0
+  gh_gpu_buffer.set_matrix4x4(ub, buffer_offset_bytes, cam, "camera_view_projection")
+end
+
+function UpdateObjectTransform(obj, ub)
+  -- The bytes from offset 64 to 128 will be used to store the object matrix.
+  --
+  local buffer_offset_bytes = 64
+  gh_gpu_buffer.set_matrix4x4(ub, buffer_offset_bytes, obj, "object_global_transform")
+end
+
+-- The size of the GPU must be enough to store 2 transformation matrices, at least
+-- 128 bytes.
+--
+local ub_size = 256
+ub1 = gh_gpu_buffer.create("UNIFORM", "NONE", ub_size, "")
+gh_gpu_buffer.bind(ub1)
+
+-- Maps the GPU buffer: the GPU buffer can be read and write from CPU.
+-- In Vulkan, a GPU can be mapped during the life of the demo. Just unmap it in 
+-- the terminate script.
+--
+gh_gpu_buffer.map(ub1)
+
+
+-- Updates the camera matrix.
+UpdateCameraTransform(camera, ub1)
+
+
+
+
+
+-----------------------------------------------------------------------
+-- SPIR-V shaders.
+--
+-- The SPIR-V shaders have been created from GLSL shaders using the 
+-- glslangValidator.exe on Windows. This utility is available in the 
+-- spirv/ folder.
+--
+local vertex_shader = demo_dir .. "spirv/02-vs.spv"
+local pixel_shader = demo_dir .. "spirv/02-ps.spv"
+color_prog = gh_gpu_program.vk_create_from_spirv_module_file("02-shader",   vertex_shader, "main",     pixel_shader, "main",    "", "",    "", "",     "", "",    "", "") 
+
+
+
+
+
+
+-----------------------------------------------------------------------
+-- Descriptor set that describes what resources (GPU buffer and textures) 
+-- will be used for drawing.
+-- In this demo, one GPU buffer will be use in the vertex shader.
+--
+ds = gh_renderer.vk_descriptorset_create()
+
+-- The binding point is very important because it is used in ther vertex shader to reference
+-- the GPU buffer.
+local binding_point = 0
+gh_renderer.vk_descriptorset_add_resource_gpu_buffer(ds, ub1, binding_point, VK_SHADER_STAGE_VERTEX)
+
+gh_renderer.vk_descriptorset_build(ds)
+gh_renderer.vk_descriptorset_update(ds)
+
+
+
+
+-----------------------------------------------------------------------
+-- The pipeline object or PSO.
+-- The PSO stores all graphics pipeline states (what shaders are used, depth state, blending, etc.)
+-- in one place. The PSO is an immutable object: once created, it can not be changed. So if you need
+-- to draw an object with solid polygon mode and another object in wireframe, you have to create 
+-- two PSOs.
+--
+pso01 = gh_renderer.pipeline_state_create("pso01", color_prog, "")
+gh_renderer.pipeline_state_set_attrib_4i(pso01, "DEPTH_TEST", 1, 0, 0, 0)
+gh_renderer.pipeline_state_set_attrib_4i(pso01, "FILL_MODE", POLYGON_MODE_SOLID, 0, 0, 0)
+gh_renderer.pipeline_state_set_attrib_4i(pso01, "PRIMITIVE_TYPE", PRIMITIVE_TRIANGLE, 0, 0, 0)
+gh_renderer.pipeline_state_set_attrib_4i(pso01, "CULL_MODE", POLYGON_FACE_NONE, 0, 0, 0)
+pso_valid = gh_renderer.vk_pipeline_state_build(pso01, ds)
+if (pso_valid == 0) then
+	print("ERROR: pipeline state pso01 is not valid.")
+end
+
+
+
+
+
+
+
+-----------------------------------------------------------------------
+-- Creates an non-indexed triangle mesh: 3 vertices and 0 faces.
+--
+local use_std_vertex_attribs = 1 -- standard vertex attribs like gxl3d_Position.
+local num_user_vertex_attribs = 0 -- no custom vertex attrib arrays.
+local separate_vertex_arrays = 1 -- Separate (1) or interleaved (0) vertex attribs.
+local vertex_alignment = 0
+local alloc_vertex_particles = 0
+gh_mesh.set_vertex_alloc_params(use_std_vertex_attribs, num_user_vertex_attribs, separate_vertex_arrays, vertex_alignment, alloc_vertex_particles)
+
+
+triangle = gh_mesh.create_v2()
+local num_vertices = 3
+local num_faces = 0 -- non-indexed rendering
+local ret = gh_mesh.alloc_mesh_data(triangle, num_vertices, num_faces)
+if (ret == 1) then
+  gh_mesh.set_vertex_position(triangle, 0, -1, -1, 0, 1)
+  gh_mesh.set_vertex_position(triangle, 1, 0, 1, 0, 1)
+  gh_mesh.set_vertex_position(triangle, 2, 1, -1, 0, 1)
+
+  gh_mesh.set_vertex_color(triangle, 0, 1, 0, 0, 1)
+  gh_mesh.set_vertex_color(triangle, 1, 0, 1, 0, 1)
+  gh_mesh.set_vertex_color(triangle, 2, 0, 0, 1, 1)
+end 
+
+
+
+
+VK_Framework_Init_End()
+
+		]]></raw_data>
+	</script> 
+	
+	
+
+
+
+	<script name="kill_scene" run_mode="TERMINATE" >
+		<raw_data><![CDATA[	
+
+gh_gpu_buffer.unmap(ub1)
+VK_Framework_Terminate()
+
+		]]></raw_data>
+	</script> 
+  
+
+
+	
+	
+  
+	<script name="update_scene" run_mode="FRAME" >
+		<raw_data><![CDATA[	
+
+-----------------------------------------------------------------------
+VK_Framework_Frame_Begin(0.2, 0.2, 0.2)
+-----------------------------------------------------------------------
+
+
+
+   
+-- Scene payload: triangle drawing.
+--
+
+local elapsed_time = VK_Framework_GetTime()
+
+if (pso_valid == 1) then
+  -- Binds the descriptor set and PSO.
+  --
+  gh_renderer.vk_descriptorset_bind(ds)
+  gh_renderer.pipeline_state_bind(pso01)
+
+  -- Updates object transformation.
+  --
+  gh_object.set_euler_angles(triangle, 0, elapsed_time*33.0, 0)
+  UpdateObjectTransform(triangle, ub1)
+  
+  
+  -- Render the object. Keep in mind that the object is not really rendered:
+  -- only the drawing command is recorded in the command buffer. The object 
+  -- will be truly rendered later when the command buffer will be executed.  
+  --
+  gh_object.render(triangle)
+end  
+
+
+
+
+-----------------------------------------------------------------------
+VK_Framework_Frame_End(1)
+-----------------------------------------------------------------------
+
+		]]></raw_data>
+	</script> 
+	
+
+  
+  
+  
+	<script name="resize_scene" run_mode="SIZE" >
+  <raw_data><![CDATA[	
+  
+VK_Framework_Resize()
+
+UpdateCameraTransform(camera, ub1)
+
+
+		]]></raw_data>
+	</script> 
+  
+  
+</glsl_hacker>
