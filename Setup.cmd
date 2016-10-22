@@ -4,10 +4,13 @@ xcopy /C/H/R/S/Y Lib\* C:\Windows\System32\
 REM ADDING WINX THEME FILES
 
 
-robocopy Themes\ C:\Windows\Resources\Themes\ /E
-robocopy Components\CPUZ  "C:\Program Files (x86)\CPUZ"
-robocopy Components\GPUZ "C:\Program Files (x86)\GPUZ"
-robocopy Components\TaskManager\ "C:\Program Files (x86)\TaskManager"
+robocopy "Themes\" C:\Windows\Resources\Themes\ /E
+robocopy "Components\CPUZ"  "C:\Program Files (x86)\CPUZ"
+robocopy "Components\GPUZ" "C:\Program Files (x86)\GPUZ"
+robocopy "Components\GPU Caps\" "C:\Program Files (x86)\GPU Caps Viewer"
+robocopy "Components\TaskManager\" "C:\Program Files (x86)\TaskManager"
+robocopy "Components\putty.exe" "C:\Program Files (x86)\Putty\"
+robocopy "Components\MobaXterm" "C:\Program Files (x86)\MobaXterm\"
 
 REM ADD CONTEXT MENU OPENWITH NOTEPAD++
 regedit.exe /S Registry\OpenWithNotepad.reg
@@ -21,7 +24,10 @@ RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 Drivers\NetGear\
 RUNDLL32.EXE SETUPAPI.DLL,InstallHinfSection DefaultInstall 132 Drivers\TP-Link\netrtwlanu.inf
 
 REM ADDED TO TASKBAR
+cscript Scripts\PinItem.vbs /taskbar /item:"C:\Program Files (x86)\Putty\putty.exe"
+cscript Scripts\PinItem.vbs /taskbar /item:"C:\Program Files (x86)\MobaXterm\MobaXterm_Personal_8.2.exe"
 cscript Scripts\PinItem.vbs /taskbar /item:"C:\Program Files (x86)\GPUZ\GPU-Z.1.12.0.exe"
+cscript Scripts\PinItem.vbs /taskbar /item:"C:\Program Files (x86)\GPU Caps Viewer\GpuCapsViewer.exe"
 cscript Scripts\PinItem.vbs /taskbar /item:"C:\Program Files (x86)\CPUZ\cpuz_x64.exe"
 
 REM RUN INSTALL
@@ -38,5 +44,3 @@ START /WAIT Components\ServicesRepair.exe
 START /WAIT Components\UniversalThemePatcher-x64.exe
 START /WAIT Components\CustomizerGod.exe
 START /WAIT Components\Windows_Loader.exe
-
-
