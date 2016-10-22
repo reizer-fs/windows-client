@@ -3,18 +3,17 @@ cd %~dp0
 xcopy /C/H/R/S/Y Lib\* C:\Windows\System32\
 REM ADDING WINX THEME FILES
 
-
-robocopy "Themes\" C:\Windows\Resources\Themes\ /E
-robocopy "Components\CPUZ"  "C:\Program Files (x86)\CPUZ"
-robocopy "Components\GPUZ" "C:\Program Files (x86)\GPUZ"
-robocopy "Components\GPU Caps\" "C:\Program Files (x86)\GPU Caps Viewer"
-robocopy "Components\TaskManager\" "C:\Program Files (x86)\TaskManager"
-robocopy "Components\putty.exe" "C:\Program Files (x86)\Putty\"
-robocopy "Components\MobaXterm" "C:\Program Files (x86)\MobaXterm\"
+robocopy "Themes\" C:\Windows\Resources\Themes\ /E >nul 2>&1
+robocopy "Components\CPUZ"  "C:\Program Files (x86)\CPUZ" >nul 2>&1
+robocopy "Components\GPUZ" "C:\Program Files (x86)\GPUZ" /NFL >nul 2>&1
+robocopy "Components\GPU Caps\" "C:\Program Files (x86)\GPU Caps Viewer" >nul 2>&1
+robocopy "Components\TaskManager\" "C:\Program Files (x86)\TaskManager" >nul 2>&1
+robocopy "Components\putty.exe" "C:\Program Files (x86)\Putty\" >nul 2>&1
+robocopy "Components\MobaXterm" "C:\Program Files (x86)\MobaXterm\" >nul 2>&1
 
 REM ADD CONTEXT MENU OPENWITH NOTEPAD++
-regedit.exe /S Registry\OpenWithNotepad.reg
-call Components\OpenWithExt.cmd
+regedit.exe /S Registry\OpenWithNotepad.reg >nul 2>&1
+call Components\OpenWithExt.cmd >nul 2>&1
 
 REM DISABLE HIBERNATION
 powercfg -h off
